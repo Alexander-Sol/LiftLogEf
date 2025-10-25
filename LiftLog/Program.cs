@@ -5,7 +5,7 @@ using LiftLog.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 var dbPath = Path.Combine(builder.Environment.ContentRootPath, "liftlog.db");
-builder.Services.AddDbContext<ApplicationDbContext>(o =>
+builder.Services.AddDbContext<LiftLogDbContext>(o =>
     o.UseSqlite($"Data Source={dbPath}"));
 var app = builder.Build();
 app.MapGet("/", () => "OK");
