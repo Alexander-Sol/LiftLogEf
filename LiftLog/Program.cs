@@ -12,6 +12,12 @@ var dbPath = Path.Combine(builder.Environment.ContentRootPath, "liftlog.db");
 builder.Services.AddDbContext<LiftLogDbContext>(o =>
     o.UseSqlite($"Data Source={dbPath}"));
 
+// CORS (handy for browser-based testing and simulators)
+builder.Services.AddCors(o =>
+{
+    o.AddPolicy("dev", p => p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
+
 // Register OpenAPI generation
 builder.Services.AddOpenApi(options =>
 {
@@ -31,6 +37,8 @@ builder.Services.AddOpenApi(options =>
 
 var app = builder.Build();
 
+app.UseCors("dev");
+
 // Serve OpenAPI JSON at /openapi/v1.json (default name is "v1")
 app.MapOpenApi();
 
@@ -43,7 +51,7 @@ app.MapScalarApiReference(options =>
 });
 
 // optional: only expose UI in dev
-if (app.Environment.IsDevelopment()) app.MapScalarApiReference();
+//if (app.Environment.IsDevelopment()) app.MapScalarApiReference();
 Console.WriteLine($"is app.Environment development?: {app.Environment.IsDevelopment()}");
 
 app.Run();
