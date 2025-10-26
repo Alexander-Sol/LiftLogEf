@@ -1,14 +1,51 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using LiftLog.Data;
+using Microsoft.AspNetCore.OpenApi;
+using Scalar.AspNetCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
 var dbPath = Path.Combine(builder.Environment.ContentRootPath, "liftlog.db");
 builder.Services.AddDbContext<LiftLogDbContext>(o =>
     o.UseSqlite($"Data Source={dbPath}"));
+
+// Register OpenAPI generation
+builder.Services.AddOpenApi(options =>
+{
+    // optional: name your doc & tweak defaults
+    options.AddDocumentTransformer((doc, ctx, ct) =>
+    {
+        doc.Info = new()
+        {
+            Title = "LiftLog API",
+            Version = "v1",
+            Description = "JSON REST API for the LiftLog app"
+        };
+        return Task.CompletedTask;
+    });
+});
+
+
 var app = builder.Build();
-app.MapGet("/", () => "OK");
+
+// Serve OpenAPI JSON at /openapi/v1.json (default name is "v1")
+app.MapOpenApi();
+
+// Nice interactive UI (Scalar) at /scalar/v1
+app.MapScalarApiReference(options =>
+{
+    options.Title = "LiftLog API";
+    options.EndpointPathPrefix = "/openapi"; // matches MapOpenApi()
+    options.WithTheme(ScalarTheme.Kepler);   // optional
+});
+
+// optional: only expose UI in dev
+if (app.Environment.IsDevelopment()) app.MapScalarApiReference();
+Console.WriteLine($"is app.Environment development?: {app.Environment.IsDevelopment()}");
+
 app.Run();
 
 // var builder = WebApplication.CreateBuilder(args);
