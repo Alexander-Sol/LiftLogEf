@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using LiftLog.Data;
+using LiftLog.APIs;
 using Microsoft.AspNetCore.OpenApi;
 using Scalar.AspNetCore;
 
@@ -43,16 +44,21 @@ app.UseCors("dev");
 app.MapOpenApi();
 
 // Nice interactive UI (Scalar) at /scalar/v1
-app.MapScalarApiReference(options =>
+app.MapScalarApiReference("/scalar/v1", options =>
 {
     options.Title = "LiftLog API";
-    options.EndpointPathPrefix = "/openapi"; // matches MapOpenApi()
     options.WithTheme(ScalarTheme.Kepler);   // optional
 });
 
 // optional: only expose UI in dev
 //if (app.Environment.IsDevelopment()) app.MapScalarApiReference();
 Console.WriteLine($"is app.Environment development?: {app.Environment.IsDevelopment()}");
+
+// Map API endpoints
+var apiGroup = app.MapGroup("/api/v1");
+apiGroup.MapExercisesEndpoints();
+apiGroup.MapWorkoutEndpoints();
+apiGroup.MapSetsEndpoints();
 
 app.Run();
 

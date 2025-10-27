@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using LiftLog.Data;
 using LiftLog.Models;
 
+namespace LiftLog.APIs;
+
 public static class SetsEndpoints
 {
     public static IEndpointRouteBuilder MapSetsEndpoints(this IEndpointRouteBuilder routes)

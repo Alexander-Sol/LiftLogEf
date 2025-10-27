@@ -1,8 +1,16 @@
 namespace LiftLog.Models;
 
+public class User
+{
+    public int Id { get; set; }
+    public string Email { get; set; } = "";
+    public string? DisplayName { get; set; }
+}
+
 public class Workout
 {
     public int Id { get; set; }
+    public int UserId { get; set; }
     public DateOnly Date { get; set; }
     public string? Notes { get; set; }
 

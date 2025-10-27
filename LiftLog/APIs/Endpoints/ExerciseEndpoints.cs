@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using LiftLog.Data;
 using LiftLog.Models;
 
+namespace LiftLog.APIs;
+
 public static class ExercisesEndpoints
 {
     public static IEndpointRouteBuilder MapExercisesEndpoints(this IEndpointRouteBuilder routes)
