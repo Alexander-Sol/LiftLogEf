@@ -5,19 +5,33 @@ using LiftLog.Models;
 
 namespace LiftLog.APIs;
 
-public static class SetsEndpoints
+public static class SetLogEndpoints
 {
     public static IEndpointRouteBuilder MapSetsEndpoints(this IEndpointRouteBuilder routes)
     {
         var group = routes.MapGroup("/workouts").WithTags("Sets");
 
-        group.MapPost("{workoutId:int}/sets", async (int workoutId, CreateSetDto dto, LiftLogDbContext db) =>
+        group.MapPost("{workoutId:int}/sets",
+        async (int workoutId, CreateSetLogDto dto, LiftLogDbContext db) =>
         {
             var workoutExists = await db.Workouts.AnyAsync(w => w.Id == workoutId);
             if (!workoutExists) return Results.NotFound(new ProblemDetails { Title = "Workout not found" });
 
             var exercise = await db.Exercises.FindAsync(dto.ExerciseId);
             if (exercise is null) return Results.BadRequest(new ProblemDetails { Title = "Invalid ExerciseId" });
+
+            // Basic validation
+            if (dto.Reps <= 0)
+                return Results.ValidationProblem(new Dictionary<string, string[]>
+                {
+                    ["reps"] = ["Reps must be > 0."]
+                });
+                
+            if (dto.Weight < 0)
+                return Results.ValidationProblem(new Dictionary<string, string[]>
+                {
+                    ["weight"] = ["Weight must be >= 0."]
+                });
 
             var set = new SetLog
             {
@@ -34,7 +48,7 @@ public static class SetsEndpoints
         })
         .WithOpenApi(op => { op.Summary = "Add set to workout"; return op; });
 
-        group.MapPut("{workoutId:int}/sets/{setId:int}", async (int workoutId, int setId, UpdateSetDto dto, LiftLogDbContext db) =>
+        group.MapPut("{workoutId:int}/sets/{setId:int}", async (int workoutId, int setId, UpdateSetLogDto dto, LiftLogDbContext db) =>
         {
             var set = await db.Sets.FirstOrDefaultAsync(s => s.Id == setId && s.WorkoutId == workoutId);
             if (set is null) return Results.NotFound();

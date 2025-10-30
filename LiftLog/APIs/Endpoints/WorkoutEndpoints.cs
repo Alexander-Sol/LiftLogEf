@@ -49,7 +49,7 @@ public static class WorkoutEndpoints
             var dto = new WorkoutDetailDto(
                 w.Id, w.Date, w.Notes,
                 w.Sets.OrderBy(s => s.Id)
-                      .Select(s => new SetDto(s.Id, s.ExerciseId, s.Exercise!.Name, s.Reps, s.Weight))
+                      .Select(s => new SetLogDto(s.Id, s.ExerciseId, s.Exercise!.Name, s.Reps, s.Weight))
                       .ToList()
             );
             return Results.Ok(dto);
